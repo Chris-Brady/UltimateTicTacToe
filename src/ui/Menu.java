@@ -6,6 +6,7 @@
 package ui;
 
 import java.awt.GridLayout;
+import java.util.ArrayList;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -34,11 +35,12 @@ public class Menu extends javax.swing.JPanel
         openGamesPanel.add(p);
     }
     
-    public void refresh()
+    private void refresh()
     {
         try
         {
             String result = proxy.showOpenGames();
+            String mine = proxy.showMyOpenGames(game.getUserID());
             switch(result)
             {
                 case "ERROR-NOGAMES":
@@ -50,14 +52,73 @@ public class Menu extends javax.swing.JPanel
                         game.alertUser("Oops!\nError connecting to database!");
                     break;
                 default:
-                    System.out.println(result);
+                    pView.removeAll();
+                    String[] arr = result.split("\n");
                     
+                    if(!(mine.equals("ERROR-NOGAMES"))&&!(mine.equals("DB-ERROR")))
+                    {
+                        ArrayList<String> tmp = new ArrayList<String>();
+                        for(int i=0;i<arr.length;i++)
+                        {
+                            if(!mine.contains(arr[i]))
+                            {
+                                tmp.add(arr[i]);
+                            }
+                        }
+                        arr = new String[tmp.size()];
+                        for(int i=0;i<tmp.size();i++)
+                            arr[i]=tmp.get(i);
+                    }
+                    
+                    for(int i = 0;i<arr.length;i++)
+                    {
+                        String[] tmp = arr[i].split(",");
+                        pView.add(new OpenGame(tmp[0],tmp[1],this));
+                    }
+                    pView.revalidate();
             }
             
         }
         catch(Exception e)
         {
             game.alertUser("Oops!\n"+e.toString());
+        }
+    }
+    
+    private void newGame()
+    {
+        String gameKey = proxy.newGame(game.getUserID());
+        switch(gameKey)
+        {
+            case"ERROR-NOTFOUND":
+            case"ERROR-RETRIEVE":
+            case"ERROR-INSERT":
+            case"ERROR-DB":
+                game.alertUser("Oops!\nDatabase Error!");
+                break;
+            default:
+                GamePanel newgame = new GamePanel(game,proxy,Integer.parseInt(gameKey),TabbedPane,1);
+                this.TabbedPane.addTab(gameKey, null, newgame);
+                TabbedPane.setSelectedIndex(TabbedPane.indexOfTab(gameKey));
+        }
+    }
+    
+    public void joinGame(int gid, OpenGame clicked)
+    {
+        pView.remove(clicked);
+        String result = proxy.joinGame(game.getUserID(), gid);
+        switch(result)
+        {
+            case"ERROR-DB":
+                game.alertUser("Oops!\nDatabase Error!");
+                break;
+            case"0":
+                game.alertUser("Oops!\nSomething funky happened!!");
+                break;
+            default:
+                GamePanel newgame = new GamePanel(game,proxy,gid,TabbedPane,2);
+                TabbedPane.addTab(gid+"", null, newgame);
+                TabbedPane.setSelectedIndex(TabbedPane.indexOfTab(gid+""));
         }
     }
 
@@ -79,7 +140,9 @@ public class Menu extends javax.swing.JPanel
         refreshButton = new javax.swing.JButton();
         blankPanel = new javax.swing.JPanel();
         openGamesPanel = new javax.swing.JPanel();
+        NewGameButton = new javax.swing.JButton();
         LeaderBoard = new javax.swing.JPanel();
+        openGamesPanel1 = new javax.swing.JPanel();
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -135,11 +198,20 @@ public class Menu extends javax.swing.JPanel
         );
         blankPanelLayout.setVerticalGroup(
             blankPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 330, Short.MAX_VALUE)
+            .addGap(0, 292, Short.MAX_VALUE)
         );
 
         openGamesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Games"));
         openGamesPanel.setLayout(new java.awt.GridLayout(0, 1));
+
+        NewGameButton.setText("New Game");
+        NewGameButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                NewGameButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout OpenGamesLayout = new javax.swing.GroupLayout(OpenGames);
         OpenGames.setLayout(OpenGamesLayout);
@@ -147,9 +219,10 @@ public class Menu extends javax.swing.JPanel
             OpenGamesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(OpenGamesLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(openGamesPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 559, Short.MAX_VALUE)
+                .addComponent(openGamesPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 543, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(OpenGamesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(OpenGamesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(NewGameButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(refreshButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(blankPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -163,21 +236,32 @@ public class Menu extends javax.swing.JPanel
                     .addGroup(OpenGamesLayout.createSequentialGroup()
                         .addComponent(blankPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
+                        .addComponent(NewGameButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(refreshButton)))
                 .addContainerGap())
         );
 
-        TabbedPane.addTab("Open Games", OpenGames);
+        TabbedPane.addTab("Games", OpenGames);
+
+        openGamesPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Games"));
+        openGamesPanel1.setLayout(new java.awt.GridLayout(0, 1));
 
         javax.swing.GroupLayout LeaderBoardLayout = new javax.swing.GroupLayout(LeaderBoard);
         LeaderBoard.setLayout(LeaderBoardLayout);
         LeaderBoardLayout.setHorizontalGroup(
             LeaderBoardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 652, Short.MAX_VALUE)
+            .addGroup(LeaderBoardLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(openGamesPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 559, Short.MAX_VALUE)
+                .addGap(87, 87, 87))
         );
         LeaderBoardLayout.setVerticalGroup(
             LeaderBoardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 392, Short.MAX_VALUE)
+            .addGroup(LeaderBoardLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(openGamesPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         TabbedPane.addTab("Leaderboard", LeaderBoard);
@@ -190,9 +274,15 @@ public class Menu extends javax.swing.JPanel
         refresh();
     }//GEN-LAST:event_refreshButtonActionPerformed
 
+    private void NewGameButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_NewGameButtonActionPerformed
+    {//GEN-HEADEREND:event_NewGameButtonActionPerformed
+        newGame();
+    }//GEN-LAST:event_NewGameButtonActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel LeaderBoard;
+    private javax.swing.JButton NewGameButton;
     private javax.swing.JPanel OpenGames;
     private javax.swing.JTabbedPane TabbedPane;
     private javax.swing.JPanel blankPanel;
@@ -200,6 +290,7 @@ public class Menu extends javax.swing.JPanel
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel openGamesPanel;
+    private javax.swing.JPanel openGamesPanel1;
     private javax.swing.JButton refreshButton;
     // End of variables declaration//GEN-END:variables
 }
