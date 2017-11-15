@@ -4,22 +4,21 @@
  * and open the template in the editor.
  */
 package ui;
-
 /**
  *
  * @author chris
  */
 public class OpenGame extends javax.swing.JPanel
-{
-
-    /**
-     * Creates new form OpenGame
-     */
-    public OpenGame(String gid,String uid)
+{   
+    private Menu m;
+    private int igid;
+    public OpenGame(String gid,String uname,Menu m)
     {
         initComponents();
         this.gid.setText(gid);
-        this.uid.setText(uid);
+        this.uid.setText(uname);
+        this.igid = Integer.parseInt(gid);
+        this.m = m;
     }
 
     /**
@@ -32,14 +31,12 @@ public class OpenGame extends javax.swing.JPanel
     private void initComponents()
     {
 
-        joinButton = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         gid = new javax.swing.JLabel();
         uid = new javax.swing.JLabel();
+        joinButton = new javax.swing.JButton();
 
-        joinButton.setText("Join");
-
-        jPanel1.setLayout(new java.awt.GridLayout());
+        jPanel1.setLayout(new java.awt.GridLayout(1, 0));
 
         gid.setText("Game ID");
         jPanel1.add(gid);
@@ -47,29 +44,38 @@ public class OpenGame extends javax.swing.JPanel
         uid.setText("User ID");
         jPanel1.add(uid);
 
+        joinButton.setText("Join");
+        joinButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                joinButtonActionPerformed(evt);
+            }
+        });
+        jPanel1.add(joinButton);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 254, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(joinButton, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 422, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(joinButton))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void joinButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_joinButtonActionPerformed
+    {//GEN-HEADEREND:event_joinButtonActionPerformed
+        m.joinGame(igid,this);
+    }//GEN-LAST:event_joinButtonActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
