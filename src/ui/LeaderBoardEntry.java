@@ -11,14 +11,10 @@ public class LeaderBoardEntry extends javax.swing.JPanel
     LeaderBoardEntry(String key, int score, int loss, int draw)
     {
         initComponents();
-        player1.setText(s.get(1));
-        player2.setText(s.get(2));
-        if(s.get(3).equals("3"))
-            outcome.setText("Draw");
-        else if(s.get(3).equals("0"))
-            outcome.setText("N/A");
-        else
-            outcome.setText(s.get(Integer.parseInt(s.get(3))));
+        playerName.setText(key);
+        winsLabel.setText(score+"");
+        lossesLabel.setText(loss+"");
+        drawsLabel.setText(draw+"");
     }
     
     @SuppressWarnings("unchecked")
