@@ -8,10 +8,9 @@ public class LeaderBoardEntry extends javax.swing.JPanel
         initComponents();
     }
     
-    public LeaderBoardEntry(ArrayList<String> s)
+    LeaderBoardEntry(String key, int score, int loss, int draw)
     {
         initComponents();
-        gameID.setText(s.get(0));
         player1.setText(s.get(1));
         player2.setText(s.get(2));
         if(s.get(3).equals("3"))
@@ -27,31 +26,31 @@ public class LeaderBoardEntry extends javax.swing.JPanel
     private void initComponents()
     {
 
-        gameID = new javax.swing.JLabel();
-        player1 = new javax.swing.JLabel();
-        player2 = new javax.swing.JLabel();
-        outcome = new javax.swing.JLabel();
+        playerName = new javax.swing.JLabel();
+        winsLabel = new javax.swing.JLabel();
+        lossesLabel = new javax.swing.JLabel();
+        drawsLabel = new javax.swing.JLabel();
 
         setLayout(new java.awt.GridLayout(1, 4));
 
-        gameID.setText("Game ID");
-        add(gameID);
+        playerName.setText("Player");
+        add(playerName);
 
-        player1.setText("Player1");
-        add(player1);
+        winsLabel.setText("Wins");
+        add(winsLabel);
 
-        player2.setText("Player2");
-        add(player2);
+        lossesLabel.setText("Losses");
+        add(lossesLabel);
 
-        outcome.setText("Outcome");
-        add(outcome);
+        drawsLabel.setText("Draws");
+        add(drawsLabel);
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel gameID;
-    private javax.swing.JLabel outcome;
-    private javax.swing.JLabel player1;
-    private javax.swing.JLabel player2;
+    private javax.swing.JLabel drawsLabel;
+    private javax.swing.JLabel lossesLabel;
+    private javax.swing.JLabel playerName;
+    private javax.swing.JLabel winsLabel;
     // End of variables declaration//GEN-END:variables
 }

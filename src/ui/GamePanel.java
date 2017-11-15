@@ -54,6 +54,7 @@ public class GamePanel extends javax.swing.JPanel
     
     public void update()
     {
+        System.out.println(boardState);
         if(update)
         {
             String state = UltimateTicTacToeClient.getProxy().getGameState(gid);

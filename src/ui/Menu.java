@@ -3,6 +3,7 @@ package ui;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -314,13 +315,42 @@ public class Menu extends javax.swing.JPanel
                 game.alertUser("Oops!\nDatabase Error!");
                 break;
             default:
+                HashMap<String,int[]> usersToScores = new HashMap<>();
                 lView.removeAll();
                 lView.add(new LeaderBoardEntry());
                 ArrayList<ArrayList<String>> results = gamesToArray(leaderBoard);
                 results.forEach((a) ->
                 {
-                    lView.add(new LeaderBoardEntry(a));
+                    if(!(a.get(3).equals("0")))
+                    {
+                        int victor = Integer.parseInt(a.get(3));
+                        if(!usersToScores.containsKey(a.get(1)))
+                            usersToScores.put(a.get(1), new int[3]);
+                        if(!usersToScores.containsKey(a.get(2)))
+                            usersToScores.put(a.get(2), new int[3]);
+
+                        if(victor == 3)
+                        {
+                            usersToScores.get(a.get(1))[2]++;
+                            usersToScores.get(a.get(2))[2]++;
+                        }
+                        else
+                        {
+                            int loser = (victor==1)?2:1;
+                            usersToScores.get(a.get(victor))[0]++;
+                            usersToScores.get(a.get(loser))[1]++;
+                        }
+                    }
                 });
+                
+                for (String key : usersToScores.keySet()) 
+                {
+                    int score = usersToScores.get(key)[0];
+                    int loss = usersToScores.get(key)[1];
+                    int draw = usersToScores.get(key)[2];
+                    System.out.println(key+" "+score+" "+loss+" "+draw);
+                    lView.add(new LeaderBoardEntry(key,score,loss,draw));
+                }
                 lView.revalidate();
         }
     }//GEN-LAST:event_refreshLeaderboardBtnActionPerformed

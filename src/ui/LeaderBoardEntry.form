@@ -19,24 +19,24 @@
     <Property name="rows" type="int" value="1"/>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JLabel" name="gameID">
+    <Component class="javax.swing.JLabel" name="playerName">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Game ID"/>
+        <Property name="text" type="java.lang.String" value="Player"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="player1">
+    <Component class="javax.swing.JLabel" name="winsLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Player1"/>
+        <Property name="text" type="java.lang.String" value="Wins"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="player2">
+    <Component class="javax.swing.JLabel" name="lossesLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Player2"/>
+        <Property name="text" type="java.lang.String" value="Losses"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="outcome">
+    <Component class="javax.swing.JLabel" name="drawsLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Outcome"/>
+        <Property name="text" type="java.lang.String" value="Draws"/>
       </Properties>
     </Component>
   </SubComponents>
