@@ -16,7 +16,9 @@ import ui.GamePanel;
 public class StateChecker implements Runnable
 {
     private boolean run;
+    private final GamePanel g;
     
+    public StateChecker(GamePanel g)
     {
         this.g = g;
         run=true;
@@ -31,6 +33,7 @@ public class StateChecker implements Runnable
     {
         while(run)
         {
+            g.update();
         }
     }  
 }
