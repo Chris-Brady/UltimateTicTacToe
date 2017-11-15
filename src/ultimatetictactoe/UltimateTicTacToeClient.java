@@ -27,7 +27,6 @@ public class UltimateTicTacToeClient extends JFrame
         }
         catch(Exception e)
         {
-            e.printStackTrace();
             System.exit(1);
         }
         
