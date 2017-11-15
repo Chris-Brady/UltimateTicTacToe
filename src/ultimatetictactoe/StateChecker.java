@@ -7,6 +7,8 @@ package ultimatetictactoe;
 
 import static java.lang.Thread.sleep;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import ui.GamePanel;
 
 /**
@@ -34,6 +36,14 @@ public class StateChecker implements Runnable
         while(run)
         {
             g.update();
+        }
+        try
+        {
+            sleep(512);
+        } 
+        catch (InterruptedException ex)
+        {
+            Logger.getLogger(StateChecker.class.getName()).log(Level.SEVERE, null, ex);
         }
     }  
 }
