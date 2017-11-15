@@ -7,17 +7,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import ultimatetictactoe.StateChecker;
 import ultimatetictactoe.UltimateTicTacToeClient;
 
 public class Menu extends javax.swing.JPanel
 {
     private final JScrollPane p,l;
     private final JPanel pView,lView;
-    private final ArrayList<GamePanel> games;
     private final UltimateTicTacToeClient game;
-    private final Thread updater;
-    private final StateChecker runner;
     
     public Menu(UltimateTicTacToeClient game)
     {
@@ -34,19 +30,28 @@ public class Menu extends javax.swing.JPanel
         l = new JScrollPane(lView);
         leaderBoardPanel.add(l);
         
-        games = new ArrayList<>();
-        
         openGames(UltimateTicTacToeClient.getProxy().showAllMyGames(game.getUserID()+""));
         openGames(UltimateTicTacToeClient.getProxy().showMyOpenGames(game.getUserID()));
-        
-        runner = new StateChecker(games);
-        updater = new Thread(runner);
-        updater.start();
     }
     
     public JTabbedPane getPane()
     {
         return TabbedPane;
+    }
+    
+    public void joinGame(int gid, OpenGame clicked, String hostName)
+    {
+        pView.remove(clicked);
+        String result = UltimateTicTacToeClient.getProxy().joinGame(game.getUserID(), gid);
+        switch(result)
+        {
+            case"0":
+            case"ERROR-DB":
+                game.alertUser("Oops!\nDatabase Error!");
+                break;
+            default:
+                addGame(gid+"",hostName);
+        }
     }
     
     private ArrayList<ArrayList<String>> gamesToArray(String games)
@@ -97,17 +102,9 @@ public class Menu extends javax.swing.JPanel
                 break;
             default:
                 GamePanel newgame = new GamePanel(game,Integer.parseInt(gameKey),hostID,this);
-                games.add(newgame);
                 this.TabbedPane.addTab(gameKey, null, newgame);
                 TabbedPane.setSelectedIndex(TabbedPane.indexOfTab(gameKey));
         }
-    }
-    
-    public void joinGame(int gid, OpenGame clicked, String hostName)
-    {
-        pView.remove(clicked);
-        String result = UltimateTicTacToeClient.getProxy().joinGame(game.getUserID(), gid);
-        addGame(gid+"",hostName);
     }
 
     /**

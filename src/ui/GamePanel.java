@@ -1,7 +1,7 @@
 package ui;
 
 import javax.swing.JButton;
-import javax.swing.JTabbedPane;
+import ultimatetictactoe.StateChecker;
 import ultimatetictactoe.UltimateTicTacToeClient;
 
 public class GamePanel extends javax.swing.JPanel
@@ -16,6 +16,9 @@ public class GamePanel extends javax.swing.JPanel
     private final boolean isHost;
     private boolean turn;
     private boolean update;
+    
+    private Thread updater;
+    private StateChecker runner;
     
     public GamePanel(UltimateTicTacToeClient game, int gid, String hostName, Menu menu)
     {
@@ -43,9 +46,13 @@ public class GamePanel extends javax.swing.JPanel
             symbols = new String[]{"X","O"};
         else
             symbols = new String[]{"O","X"};
+        
+        runner = new StateChecker(this);
+        updater = new Thread(runner);
+        updater.start();
     }
     
-    public synchronized void update()
+    public void update()
     {
         if(update)
         {
@@ -66,6 +73,8 @@ public class GamePanel extends javax.swing.JPanel
                 case"2": 
                 case"3":
                     gameOver(state);
+                    break;
+                case"ERROR-NOGAME":
                     break;
                 default:
                     game.alertUser("Oops!\nSomething went wrong!");
@@ -122,6 +131,7 @@ public class GamePanel extends javax.swing.JPanel
             game.alertUser("You Lose!");
         destroy();
     }
+    
     private void takeSquare(int  x, int y)
     {
         String available = UltimateTicTacToeClient.getProxy().checkSquare(x, y, gid);
@@ -176,6 +186,9 @@ public class GamePanel extends javax.swing.JPanel
             menu.getPane().remove(i);
             menu.getPane().setSelectedIndex(menu.getPane().indexOfTab("Games"));
         }
+        runner.halt();
+        runner = null;
+        updater = null;
     }
 
     /**

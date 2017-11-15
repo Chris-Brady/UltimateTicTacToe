@@ -1,6 +1,5 @@
 package ultimatetictactoe;
 
-import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;

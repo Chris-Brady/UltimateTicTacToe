@@ -303,7 +303,7 @@ public class Login extends javax.swing.JPanel
             }
             catch(Exception e)
             {
-                game.alertUser("Oops!\n"+e.toString());
+                System.exit(1);
             }
         }
     }//GEN-LAST:event_LoginButtonActionPerformed
@@ -343,7 +343,7 @@ public class Login extends javax.swing.JPanel
             }
             catch(Exception e)
             {
-                game.alertUser("Oops!\n"+e.toString());
+                System.exit(1);
             }
         }
     }//GEN-LAST:event_RegisterButtonActionPerformed

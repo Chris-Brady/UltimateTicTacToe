@@ -15,10 +15,8 @@ import ui.GamePanel;
  */
 public class StateChecker implements Runnable
 {
-    private final ArrayList<GamePanel> g;
     private boolean run;
     
-    public StateChecker(ArrayList<GamePanel> g)
     {
         this.g = g;
         run=true;
@@ -28,16 +26,11 @@ public class StateChecker implements Runnable
     {
         run = false;
     }
-    
     @Override
     public void run()
     {
         while(run)
         {
-            g.forEach((gp) ->
-            {
-                gp.update();
-            });
         }
     }  
 }
