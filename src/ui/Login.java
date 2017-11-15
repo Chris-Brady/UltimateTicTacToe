@@ -1,17 +1,14 @@
 package ui;
 import java.util.Arrays;
 import ultimatetictactoe.UltimateTicTacToeClient;
-import ultimatetttwsc.TTTWebService;
 
 public class Login extends javax.swing.JPanel
 {
-    private UltimateTicTacToeClient game;
-    private TTTWebService proxy;
+    private final UltimateTicTacToeClient game;
     
-    public Login(UltimateTicTacToeClient game, TTTWebService proxy)
+    public Login(UltimateTicTacToeClient game)
     {
         this.game = game;
-        this.proxy = proxy;
         initComponents();
     }
     
@@ -292,16 +289,16 @@ public class Login extends javax.swing.JPanel
         {
             try
             {
-                int result = proxy.login(name,pass);
-                System.out.println(result);
+                int result = UltimateTicTacToeClient.getProxy().login(name,pass);
                 if(result <= 0)
                 {
                     game.alertUser("Incorrect Username or Password!");
                 }
                 else
                 {
+                    game.setUserName(name);
                     game.setUserID(result);
-                    game.updateCurrentScreen(new Menu(game,proxy));
+                    game.updateCurrentScreen(new Menu(game));
                 }
             }
             catch(Exception e)
@@ -327,8 +324,7 @@ public class Login extends javax.swing.JPanel
         {
             try
             {
-                String result = proxy.register(username,pass,name,surname);
-                System.out.println(result); 
+                String result = UltimateTicTacToeClient.getProxy().register(username,pass,name,surname);
                 switch(result)
                 {
                     case "ERROR-REPEAT":
@@ -340,8 +336,9 @@ public class Login extends javax.swing.JPanel
                         game.alertUser("Database Error!");
                         break;
                     default:
+                        game.setUserName(username);
                         game.setUserID(Integer.parseInt(result));
-                        game.updateCurrentScreen(new Menu(game,proxy));
+                        game.updateCurrentScreen(new Menu(game));
                 }
             }
             catch(Exception e)

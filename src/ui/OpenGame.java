@@ -12,11 +12,14 @@ public class OpenGame extends javax.swing.JPanel
 {   
     private Menu m;
     private int igid;
-    public OpenGame(String gid,String uname,Menu m)
+    private String hostName;
+    public OpenGame(String gid,String hostName ,Menu m)
     {
         initComponents();
         this.gid.setText(gid);
-        this.uid.setText(uname);
+        this.uid.setText(hostName);
+        
+        this.hostName = hostName;
         this.igid = Integer.parseInt(gid);
         this.m = m;
     }
@@ -74,7 +77,7 @@ public class OpenGame extends javax.swing.JPanel
 
     private void joinButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_joinButtonActionPerformed
     {//GEN-HEADEREND:event_joinButtonActionPerformed
-        m.joinGame(igid,this);
+        m.joinGame(igid,this,hostName);
     }//GEN-LAST:event_joinButtonActionPerformed
 
 

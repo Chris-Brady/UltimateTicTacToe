@@ -1,48 +1,33 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ui;
 
 import javax.swing.JButton;
 import javax.swing.JTabbedPane;
-import ultimatetictactoe.StateChecker;
 import ultimatetictactoe.UltimateTicTacToeClient;
-import ultimatetttwsc.TTTWebService;
 
-/**
- *
- * @author chris
- */
 public class GamePanel extends javax.swing.JPanel
 {
-
     private final UltimateTicTacToeClient game;
-    private final TTTWebService proxy;
-    private final int gid;
-    private final JTabbedPane pane;
+    private final Menu menu;
+    private final JButton[][] btns;
+    private String boardState;
+    private final String[] symbols;
     
-    private final int player;
+    private final int gid;    
+    private final boolean isHost;
     private boolean turn;
-    private JButton[][] btns;
-    private String[] symbol;
+    private boolean update;
     
-    private Thread checker;
-    private StateChecker runner;
-    
-    public GamePanel(UltimateTicTacToeClient game, TTTWebService proxy,int gid,JTabbedPane pane,int player)
+    public GamePanel(UltimateTicTacToeClient game, int gid, String hostName, Menu menu)
     {
         this.game = game;
-        this.proxy = proxy;
         this.gid = gid;
-        this.pane = pane;
-        
-        this.player = player;
+        this.isHost = (hostName.equals(game.getUserName()));
+        this.menu = menu;
         this.turn = false;
+        this.update=true;
+        this.boardState="";
         
         initComponents();
-        
         btns=new JButton[3][3];
         btns[0][0] = jButton1;
         btns[0][1] = jButton2;
@@ -54,78 +39,101 @@ public class GamePanel extends javax.swing.JPanel
         btns[2][1] = jButton8;
         btns[2][2] = jButton9;
         
-        symbol = new String[]{"X","O"};
-        
-        runner = new StateChecker(this);
-        checker = new Thread(runner);
-        checker.start();
+        if(isHost)
+            symbols = new String[]{"X","O"};
+        else
+            symbols = new String[]{"O","X"};
     }
     
     public synchronized void update()
     {
-        String state = proxy.getGameState(gid);
-        System.out.println(state);
-        if(state.equals("0"))
+        if(update)
         {
-            String boardState = proxy.getBoard(gid);
-            switch(boardState)
+            String state = UltimateTicTacToeClient.getProxy().getGameState(gid);
+            switch(state)
             {
-                case"ERROR-NOMOVES":
-                    if(player ==1)
-                        turn = true;
+                case"-1":
                     break;
-                case"ERROR-DB":
-                    game.alertUser("Oops!\nDatabase Error!");
+                case"0":
+                    String newState = UltimateTicTacToeClient.getProxy().getBoard(gid);
+                    if(!boardState.equals(newState))
+                    {
+                        boardState = newState;
+                        gameTick();
+                    }
+                    break;
+                case"1":
+                case"2": 
+                case"3":
+                    gameOver(state);
                     break;
                 default:
-                    String[]arr = boardState.split("\n");
-                    for(int i=0;i<arr.length;i++)
-                    {
-                        String[]tmp = arr[i].split(",");
-                        if(Integer.parseInt(tmp[0])==game.getUserID())
-                            btns[Integer.parseInt(tmp[1])][Integer.parseInt(tmp[2])].setText(symbol[player-1]);
-                        else
-                            btns[Integer.parseInt(tmp[1])][Integer.parseInt(tmp[2])].setText(symbol[(2/player)-1]);
-                        if(i==arr.length-1)
-                            if(!(Integer.parseInt(tmp[0])==game.getUserID()))
-                                turn = true;
-                    }
-                    
+                    game.alertUser("Oops!\nSomething went wrong!");
             }
-        }
-        else if(state.equals("1")||state.equals("2"))
-        {
-            runner.halt();
-            if((player+"").equals(state))
-            {
-                game.alertUser("You Win!");
-            }    
-            else
-            {
-                game.alertUser("You Lose!");   
-            }
-            destroy();
-        }
-        else if(state.equals("3"))
-        {
-            runner.halt();
-            game.alertUser("Draw!");
-            destroy();
         }
     }
     
+    private void gameTick()
+    {
+        switch(boardState)
+        {
+            case"ERROR-DB":
+                game.alertUser("Oops!\nDatabase Error!");
+                break;
+            case"ERROR-NOMOVES":
+                if(isHost)
+                {
+                    jTextArea1.append("Your turn "+symbols[0]+"\n");
+                    turn = true;
+                }
+                else
+                    jTextArea1.append(symbols[1]+"'s turn\n");
+                break;
+            default:
+                String[]arr = boardState.split("\n");
+                for(int i=0;i<arr.length;i++)
+                {
+                    String[]tmp = arr[i].split(",");
+                    if(tmp[0].equals(game.getUserID()+""))
+                        btns[Integer.parseInt(tmp[1])][Integer.parseInt(tmp[2])].setText(symbols[0]);
+                    else
+                        btns[Integer.parseInt(tmp[1])][Integer.parseInt(tmp[2])].setText(symbols[1]);
+                    
+                    if(i==arr.length-1)
+                        if(!(Integer.parseInt(tmp[0])==game.getUserID()))
+                        {
+                            jTextArea1.append("Your turn "+symbols[0]+"\n");
+                            turn = true;
+                        }
+                    else
+                        jTextArea1.append(symbols[1]+"'s turn\n");
+                }
+        }
+    }
+    
+    private void gameOver(String state)
+    {
+        update = false;
+        if(state.equals("3"))
+            game.alertUser("Draw!");
+        else if(isHost&&state.equals("1")||!isHost&&state.equals("2"))
+            game.alertUser("You Win!");
+        else
+            game.alertUser("You Lose!");
+        destroy();
+    }
     private void takeSquare(int  x, int y)
     {
-        String available = proxy.checkSquare(x, y, gid);
+        String available = UltimateTicTacToeClient.getProxy().checkSquare(x, y, gid);
         switch(available)
         {
             case "0":
-                String result = proxy.takeSquare(x, y, gid, game.getUserID());
+                String result = UltimateTicTacToeClient.getProxy().takeSquare(x, y, gid, game.getUserID());
                 switch(result)
                 {
                     case"1":
                         turn = false;
-                        String win = proxy.checkWin(gid);
+                        String win = UltimateTicTacToeClient.getProxy().checkWin(gid);
                         switch(win)
                         {
                             case"ERROR-NOGAME":
@@ -134,7 +142,7 @@ public class GamePanel extends javax.swing.JPanel
                                 game.alertUser("Oops!\nDatabase Error!");
                                 break;
                             default:
-                                proxy.setGameState(gid,Integer.parseInt(win));
+                                UltimateTicTacToeClient.getProxy().setGameState(gid,Integer.parseInt(win));
                         }
                         break;
                     case"0":
@@ -162,11 +170,11 @@ public class GamePanel extends javax.swing.JPanel
     private void destroy()
     {
         String s = gid+"";
-        int i = pane.indexOfTab(s);
+        int i = menu.getPane().indexOfTab(s);
         if (i != -1) 
         {
-            pane.remove(i);
-            pane.setSelectedIndex(pane.indexOfTab("Games"));
+            menu.getPane().remove(i);
+            menu.getPane().setSelectedIndex(menu.getPane().indexOfTab("Games"));
         }
     }
 
@@ -343,7 +351,7 @@ public class GamePanel extends javax.swing.JPanel
     {//GEN-HEADEREND:event_CloseButtonActionPerformed
         try
         {
-            String result = proxy.deleteGame(gid, game.getUserID());
+            String result = UltimateTicTacToeClient.getProxy().deleteGame(gid, game.getUserID());
             switch(result)
             {
                 case "ERROR-GAMESTARTED":
@@ -353,6 +361,7 @@ public class GamePanel extends javax.swing.JPanel
                     game.alertUser("Oops!\nDatabase Error!");
                     break;
                 default:
+                    update = false;
                     destroy();
             }   
         }

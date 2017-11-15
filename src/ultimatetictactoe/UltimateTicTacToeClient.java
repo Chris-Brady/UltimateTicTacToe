@@ -1,5 +1,6 @@
 package ultimatetictactoe;
 
+import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -9,9 +10,9 @@ import ultimatetttwsc.TTTWebService_Service;
 
 public class UltimateTicTacToeClient extends JFrame
 {
-    private TTTWebService proxy;
-    
+    private static TTTWebService proxy;
     private int userID;
+    private String userName;
     
     public UltimateTicTacToeClient()
     {
@@ -20,7 +21,6 @@ public class UltimateTicTacToeClient extends JFrame
         this.setTitle("Ultimate TicTacToe");
         this.setResizable(false);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        
         try
         {
             TTTWebService_Service service = new TTTWebService_Service();
@@ -32,7 +32,7 @@ public class UltimateTicTacToeClient extends JFrame
             System.exit(1);
         }
         
-        updateCurrentScreen(new Login(this,proxy));
+        updateCurrentScreen(new Login(this));
     }
     
     public void setUserID(int id)
@@ -55,5 +55,20 @@ public class UltimateTicTacToeClient extends JFrame
     public void alertUser(String s)
     {
         JOptionPane.showMessageDialog(this,s);
+    }
+    
+    public static TTTWebService getProxy()
+    {
+        return proxy;
+    }
+
+    public void setUserName(String name)
+    {
+        this.userName = name;
+    }
+    
+    public String getUserName()
+    {
+        return this.userName;
     }
 }

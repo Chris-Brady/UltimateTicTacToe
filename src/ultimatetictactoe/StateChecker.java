@@ -6,6 +6,7 @@
 package ultimatetictactoe;
 
 import static java.lang.Thread.sleep;
+import java.util.ArrayList;
 import ui.GamePanel;
 
 /**
@@ -14,10 +15,10 @@ import ui.GamePanel;
  */
 public class StateChecker implements Runnable
 {
-    private GamePanel g;
+    private final ArrayList<GamePanel> g;
     private boolean run;
     
-    public StateChecker(GamePanel g)
+    public StateChecker(ArrayList<GamePanel> g)
     {
         this.g = g;
         run=true;
@@ -33,9 +34,10 @@ public class StateChecker implements Runnable
     {
         while(run)
         {
-            g.update();
-            try{sleep(1000);}
-            catch (InterruptedException ex){System.out.println(ex.toString());}
+            g.forEach((gp) ->
+            {
+                gp.update();
+            });
         }
     }  
 }

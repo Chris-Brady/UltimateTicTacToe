@@ -1,125 +1,113 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ui;
 
 import java.awt.GridLayout;
 import java.util.ArrayList;
+import java.util.Arrays;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import ultimatetictactoe.StateChecker;
 import ultimatetictactoe.UltimateTicTacToeClient;
-import ultimatetttwsc.TTTWebService;
 
-/**
- *
- * @author chris
- */
 public class Menu extends javax.swing.JPanel
 {
-    private JScrollPane p;
-    private JPanel pView;
-    private UltimateTicTacToeClient game;
-    private TTTWebService proxy;
+    private final JScrollPane p,l;
+    private final JPanel pView,lView;
+    private final ArrayList<GamePanel> games;
+    private final UltimateTicTacToeClient game;
+    private final Thread updater;
+    private final StateChecker runner;
     
-    public Menu(UltimateTicTacToeClient game, TTTWebService proxy)
+    public Menu(UltimateTicTacToeClient game)
     {
         initComponents();
         this.game = game;
-        this.proxy = proxy;
+        
         pView = new JPanel();
         pView.setLayout(new GridLayout(0,1));
         p = new JScrollPane(pView);
         openGamesPanel.add(p);
+        
+        lView = new JPanel();
+        lView.setLayout(new GridLayout(0,1));
+        l = new JScrollPane(lView);
+        leaderBoardPanel.add(l);
+        
+        games = new ArrayList<>();
+        
+        openGames(UltimateTicTacToeClient.getProxy().showAllMyGames(game.getUserID()+""));
+        openGames(UltimateTicTacToeClient.getProxy().showMyOpenGames(game.getUserID()));
+        
+        runner = new StateChecker(games);
+        updater = new Thread(runner);
+        updater.start();
     }
     
-    private void refresh()
+    public JTabbedPane getPane()
     {
-        try
+        return TabbedPane;
+    }
+    
+    private ArrayList<ArrayList<String>> gamesToArray(String games)
+    {
+        ArrayList<ArrayList<String>> result = new ArrayList<>();
+        String[] temp = games.split("\n");
+        for (String csv : temp)
         {
-            String result = proxy.showOpenGames();
-            String mine = proxy.showMyOpenGames(game.getUserID());
-            switch(result)
-            {
-                case "ERROR-NOGAMES":
-                    pView.removeAll();
-                    pView.add(new JLabel("No games!"));
-                    pView.revalidate();
-                    break;
-                case "ERROR-DB":
-                        game.alertUser("Oops!\nError connecting to database!");
-                    break;
-                default:
-                    pView.removeAll();
-                    String[] arr = result.split("\n");
-                    
-                    if(!(mine.equals("ERROR-NOGAMES"))&&!(mine.equals("DB-ERROR")))
-                    {
-                        ArrayList<String> tmp = new ArrayList<String>();
-                        for(int i=0;i<arr.length;i++)
-                        {
-                            if(!mine.contains(arr[i]))
-                            {
-                                tmp.add(arr[i]);
-                            }
-                        }
-                        arr = new String[tmp.size()];
-                        for(int i=0;i<tmp.size();i++)
-                            arr[i]=tmp.get(i);
-                    }
-                    
-                    for(int i = 0;i<arr.length;i++)
-                    {
-                        String[] tmp = arr[i].split(",");
-                        pView.add(new OpenGame(tmp[0],tmp[1],this));
-                    }
-                    pView.revalidate();
-            }
-            
+            ArrayList<String> items = new ArrayList<>(Arrays.asList(csv.split(",")));
+            result.add(items);
         }
-        catch(Exception e)
+        return result;
+    }
+    
+    private void openGames(String games)
+    {
+        switch(games)
         {
-            game.alertUser("Oops!\n"+e.toString());
+            case"ERROR-NOGAMES":
+                break;
+            case"ERROR-DB":
+                game.alertUser("Oops!\nDatabase Error!");
+                break;
+            default:
+                ArrayList<ArrayList<String>> allGames = gamesToArray(games);
+                allGames.forEach((items) ->
+                {
+                    int gid = Integer.parseInt(items.get(0));
+                    int gs = Integer.parseInt(UltimateTicTacToeClient.getProxy().getGameState(gid));
+                    if (gs<1)
+                    {
+                        addGame(items.get(0),items.get(1));
+                    }
+                });
         }
     }
     
-    private void newGame()
+    private void addGame(String gameKey,String hostID)
     {
-        String gameKey = proxy.newGame(game.getUserID());
         switch(gameKey)
         {
             case"ERROR-NOTFOUND":
             case"ERROR-RETRIEVE":
             case"ERROR-INSERT":
             case"ERROR-DB":
+            case"0":
                 game.alertUser("Oops!\nDatabase Error!");
                 break;
             default:
-                GamePanel newgame = new GamePanel(game,proxy,Integer.parseInt(gameKey),TabbedPane,1);
+                GamePanel newgame = new GamePanel(game,Integer.parseInt(gameKey),hostID,this);
+                games.add(newgame);
                 this.TabbedPane.addTab(gameKey, null, newgame);
                 TabbedPane.setSelectedIndex(TabbedPane.indexOfTab(gameKey));
         }
     }
     
-    public void joinGame(int gid, OpenGame clicked)
+    public void joinGame(int gid, OpenGame clicked, String hostName)
     {
         pView.remove(clicked);
-        String result = proxy.joinGame(game.getUserID(), gid);
-        switch(result)
-        {
-            case"ERROR-DB":
-                game.alertUser("Oops!\nDatabase Error!");
-                break;
-            case"0":
-                game.alertUser("Oops!\nSomething funky happened!!");
-                break;
-            default:
-                GamePanel newgame = new GamePanel(game,proxy,gid,TabbedPane,2);
-                TabbedPane.addTab(gid+"", null, newgame);
-                TabbedPane.setSelectedIndex(TabbedPane.indexOfTab(gid+""));
-        }
+        String result = UltimateTicTacToeClient.getProxy().joinGame(game.getUserID(), gid);
+        addGame(gid+"",hostName);
     }
 
     /**
@@ -142,7 +130,8 @@ public class Menu extends javax.swing.JPanel
         openGamesPanel = new javax.swing.JPanel();
         NewGameButton = new javax.swing.JButton();
         LeaderBoard = new javax.swing.JPanel();
-        openGamesPanel1 = new javax.swing.JPanel();
+        leaderBoardPanel = new javax.swing.JPanel();
+        refreshLeaderboardBtn = new javax.swing.JButton();
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -198,7 +187,7 @@ public class Menu extends javax.swing.JPanel
         );
         blankPanelLayout.setVerticalGroup(
             blankPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 292, Short.MAX_VALUE)
+            .addGap(0, 307, Short.MAX_VALUE)
         );
 
         openGamesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Games"));
@@ -244,8 +233,17 @@ public class Menu extends javax.swing.JPanel
 
         TabbedPane.addTab("Games", OpenGames);
 
-        openGamesPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Games"));
-        openGamesPanel1.setLayout(new java.awt.GridLayout(0, 1));
+        leaderBoardPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("LeaderBoard"));
+        leaderBoardPanel.setLayout(new java.awt.GridLayout(0, 1));
+
+        refreshLeaderboardBtn.setText("Refresh");
+        refreshLeaderboardBtn.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                refreshLeaderboardBtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout LeaderBoardLayout = new javax.swing.GroupLayout(LeaderBoard);
         LeaderBoard.setLayout(LeaderBoardLayout);
@@ -253,14 +251,18 @@ public class Menu extends javax.swing.JPanel
             LeaderBoardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(LeaderBoardLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(openGamesPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 559, Short.MAX_VALUE)
-                .addGap(87, 87, 87))
+                .addGroup(LeaderBoardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(leaderBoardPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(refreshLeaderboardBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 640, Short.MAX_VALUE))
+                .addContainerGap())
         );
         LeaderBoardLayout.setVerticalGroup(
             LeaderBoardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(LeaderBoardLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(openGamesPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(leaderBoardPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 357, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(refreshLeaderboardBtn)
                 .addContainerGap())
         );
 
@@ -271,13 +273,60 @@ public class Menu extends javax.swing.JPanel
 
     private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_refreshButtonActionPerformed
     {//GEN-HEADEREND:event_refreshButtonActionPerformed
-        refresh();
+        String result = UltimateTicTacToeClient.getProxy().showOpenGames();
+        String mine = UltimateTicTacToeClient.getProxy().showMyOpenGames(game.getUserID());
+        switch(result)
+        {
+            case "ERROR-NOGAMES":
+                pView.removeAll();
+                pView.add(new JLabel("No games!"));
+                pView.revalidate();
+                break;
+            case "ERROR-DB":
+                    game.alertUser("Oops!\nError connecting to database!");
+                break;
+            default:
+                pView.removeAll();
+                ArrayList<ArrayList<String>> results = gamesToArray(result);
+                if(!(mine.equals("ERROR-NOGAMES"))&&!(mine.equals("DB-ERROR")))
+                {
+                    ArrayList<ArrayList<String>> mines = gamesToArray(mine);
+                    results.removeAll(mines);
+                }
+                results.forEach((s) ->
+                {
+                    pView.add(new OpenGame(s.get(0),s.get(1),this));
+                });
+                pView.revalidate();
+        } 
     }//GEN-LAST:event_refreshButtonActionPerformed
 
     private void NewGameButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_NewGameButtonActionPerformed
     {//GEN-HEADEREND:event_NewGameButtonActionPerformed
-        newGame();
+        addGame(UltimateTicTacToeClient.getProxy().newGame(game.getUserID()),game.getUserName());
     }//GEN-LAST:event_NewGameButtonActionPerformed
+
+    private void refreshLeaderboardBtnActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_refreshLeaderboardBtnActionPerformed
+    {//GEN-HEADEREND:event_refreshLeaderboardBtnActionPerformed
+        String leaderBoard = UltimateTicTacToeClient.getProxy().leagueTable();
+        switch(leaderBoard)
+        {
+            case"ERROR-NOGAMES":
+                break;
+            case"ERROR-DB":
+                game.alertUser("Oops!\nDatabase Error!");
+                break;
+            default:
+                lView.removeAll();
+                lView.add(new LeaderBoardEntry());
+                ArrayList<ArrayList<String>> results = gamesToArray(leaderBoard);
+                results.forEach((a) ->
+                {
+                    lView.add(new LeaderBoardEntry(a));
+                });
+                lView.revalidate();
+        }
+    }//GEN-LAST:event_refreshLeaderboardBtnActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -289,8 +338,9 @@ public class Menu extends javax.swing.JPanel
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel leaderBoardPanel;
     private javax.swing.JPanel openGamesPanel;
-    private javax.swing.JPanel openGamesPanel1;
     private javax.swing.JButton refreshButton;
+    private javax.swing.JButton refreshLeaderboardBtn;
     // End of variables declaration//GEN-END:variables
 }
