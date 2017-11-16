@@ -13,7 +13,7 @@ public class GamePanel extends javax.swing.JPanel
     private final JButton[][] btns;
     private String boardState;
     private final String[] symbols;
-    private Timer t;
+    private final Timer t;
     
     private final int gid;    
     private final boolean isHost;
@@ -52,13 +52,9 @@ public class GamePanel extends javax.swing.JPanel
         t.start();
     }
     
-    ActionListener taskPerformer = new ActionListener() 
+    ActionListener taskPerformer = (ActionEvent evt) -> 
     {
-        @Override
-        public void actionPerformed(ActionEvent evt) 
-        {
-            update();
-        }
+        update();
     };
     
     public void update()

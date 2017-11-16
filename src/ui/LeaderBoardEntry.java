@@ -1,5 +1,4 @@
 package ui;
-import java.util.ArrayList;
 
 public class LeaderBoardEntry extends javax.swing.JPanel
 {
