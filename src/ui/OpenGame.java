@@ -22,6 +22,7 @@ public class OpenGame extends javax.swing.JPanel
         this.hostName = hostName;
         this.igid = Integer.parseInt(gid);
         this.m = m;
+        this.setSize(this.getPreferredSize());
     }
 
     /**
@@ -38,6 +39,13 @@ public class OpenGame extends javax.swing.JPanel
         gid = new javax.swing.JLabel();
         uid = new javax.swing.JLabel();
         joinButton = new javax.swing.JButton();
+
+        setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        setAlignmentX(0.0F);
+        setAlignmentY(0.0F);
+        setMaximumSize(new java.awt.Dimension(32767, 44));
+        setMinimumSize(new java.awt.Dimension(434, 44));
+        setLayout(new java.awt.GridLayout());
 
         jPanel1.setLayout(new java.awt.GridLayout(1, 0));
 
@@ -57,22 +65,7 @@ public class OpenGame extends javax.swing.JPanel
         });
         jPanel1.add(joinButton);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 422, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+        add(jPanel1);
     }// </editor-fold>//GEN-END:initComponents
 
     private void joinButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_joinButtonActionPerformed

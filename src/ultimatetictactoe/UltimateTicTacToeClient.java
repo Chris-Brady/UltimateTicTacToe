@@ -28,8 +28,7 @@ public class UltimateTicTacToeClient extends JFrame
         catch(Exception e)
         {
             System.exit(1);
-        }
-        
+        }  
         updateCurrentScreen(new Login(this));
     }
     

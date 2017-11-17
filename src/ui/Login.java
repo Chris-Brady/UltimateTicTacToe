@@ -1,4 +1,5 @@
 package ui;
+import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import ultimatetictactoe.UltimateTicTacToeClient;
 
@@ -10,6 +11,79 @@ public class Login extends javax.swing.JPanel
     {
         this.game = game;
         initComponents();
+    }
+    
+    private void login()
+    {
+        char[] input = LoginPasswordField.getPassword();
+        String name = LoginUsernameField.getText();
+        String pass = String.valueOf(input);
+        Arrays.fill(input, '0');
+        if(name.equals("")||pass.equals(""))
+        {
+            game.alertUser("All fields must be filled in!");
+        }
+        else
+        {
+            try
+            {
+                int result = UltimateTicTacToeClient.getProxy().login(name,pass);
+                if(result <= 0)
+                {
+                    game.alertUser("Incorrect Username or Password!");
+                }
+                else
+                {
+                    game.setUserName(name);
+                    game.setUserID(result);
+                    game.updateCurrentScreen(new Menu(game));
+                }
+            }
+            catch(Exception e)
+            {
+                System.exit(1);
+            }
+        }
+    }
+    
+    private void register()
+    {
+        char[] input = RegisterPasswordField.getPassword();
+        String username = RegisterUsernameField.getText();
+        String name = RegisterNameField.getText();
+        String surname = RegisterSurnameField.getText();
+        String pass = String.valueOf(input);
+        Arrays.fill(input, '0');
+        if(username.equals("")||pass.equals("")||name.equals("")||surname.equals(""))
+        {
+            game.alertUser("All fields must be filled in!");
+        }
+        else
+        {
+            try
+            {
+                String result = UltimateTicTacToeClient.getProxy().register(username,pass,name,surname);
+                switch(result)
+                {
+                    case "ERROR-REPEAT":
+                        game.alertUser("User already exists!");
+                        break;
+                    case "ERROR-INSERT":
+                    case "ERROR-RETRIEVE":
+                    case "ERROR-DB":
+                        game.alertUser("Database Error!");
+                        break;
+                    default:
+                        game.setUserName(username);
+                        game.setUserID(Integer.parseInt(result));
+                        game.updateCurrentScreen(new Menu(game));
+                }
+            }
+            catch(Exception e)
+            {
+                System.exit(1);
+            }
+        }
     }
     
     @SuppressWarnings("unchecked")
@@ -114,6 +188,13 @@ public class Login extends javax.swing.JPanel
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
                 LoginButtonActionPerformed(evt);
+            }
+        });
+        LoginButton.addKeyListener(new java.awt.event.KeyAdapter()
+        {
+            public void keyPressed(java.awt.event.KeyEvent evt)
+            {
+                LoginButtonKeyPressed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -234,6 +315,13 @@ public class Login extends javax.swing.JPanel
                 RegisterButtonActionPerformed(evt);
             }
         });
+        RegisterButton.addKeyListener(new java.awt.event.KeyAdapter()
+        {
+            public void keyPressed(java.awt.event.KeyEvent evt)
+            {
+                RegisterButtonKeyPressed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 5;
@@ -277,76 +365,31 @@ public class Login extends javax.swing.JPanel
 
     private void LoginButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_LoginButtonActionPerformed
     {//GEN-HEADEREND:event_LoginButtonActionPerformed
-        char[] input = LoginPasswordField.getPassword();
-        String name = LoginUsernameField.getText();
-        String pass = String.valueOf(input);
-        Arrays.fill(input, '0');
-        if(name.equals("")||pass.equals(""))
-        {
-            game.alertUser("All fields must be filled in!");
-        }
-        else
-        {
-            try
-            {
-                int result = UltimateTicTacToeClient.getProxy().login(name,pass);
-                if(result <= 0)
-                {
-                    game.alertUser("Incorrect Username or Password!");
-                }
-                else
-                {
-                    game.setUserName(name);
-                    game.setUserID(result);
-                    game.updateCurrentScreen(new Menu(game));
-                }
-            }
-            catch(Exception e)
-            {
-                System.exit(1);
-            }
-        }
+        register();
     }//GEN-LAST:event_LoginButtonActionPerformed
 
     private void RegisterButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_RegisterButtonActionPerformed
     {//GEN-HEADEREND:event_RegisterButtonActionPerformed
-        char[] input = RegisterPasswordField.getPassword();
-        String username = RegisterUsernameField.getText();
-        String name = RegisterNameField.getText();
-        String surname = RegisterSurnameField.getText();
-        String pass = String.valueOf(input);
-        Arrays.fill(input, '0');
-        if(username.equals("")||pass.equals("")||name.equals("")||surname.equals(""))
-        {
-            game.alertUser("All fields must be filled in!");
-        }
-        else
-        {
-            try
-            {
-                String result = UltimateTicTacToeClient.getProxy().register(username,pass,name,surname);
-                switch(result)
-                {
-                    case "ERROR-REPEAT":
-                        game.alertUser("User already exists!");
-                        break;
-                    case "ERROR-INSERT":
-                    case "ERROR-RETRIEVE":
-                    case "ERROR-DB":
-                        game.alertUser("Database Error!");
-                        break;
-                    default:
-                        game.setUserName(username);
-                        game.setUserID(Integer.parseInt(result));
-                        game.updateCurrentScreen(new Menu(game));
-                }
-            }
-            catch(Exception e)
-            {
-                System.exit(1);
-            }
-        }
+        register();
     }//GEN-LAST:event_RegisterButtonActionPerformed
+
+    private void RegisterButtonKeyPressed(java.awt.event.KeyEvent evt)//GEN-FIRST:event_RegisterButtonKeyPressed
+    {//GEN-HEADEREND:event_RegisterButtonKeyPressed
+        if(evt.getKeyCode() == KeyEvent.VK_ENTER)
+        {
+            if(RegisterButton.hasFocus())
+                register();
+        }
+    }//GEN-LAST:event_RegisterButtonKeyPressed
+
+    private void LoginButtonKeyPressed(java.awt.event.KeyEvent evt)//GEN-FIRST:event_LoginButtonKeyPressed
+    {//GEN-HEADEREND:event_LoginButtonKeyPressed
+        if(evt.getKeyCode() == KeyEvent.VK_ENTER)
+        {
+            if(LoginButton.hasFocus())
+                login();
+        }
+    }//GEN-LAST:event_LoginButtonKeyPressed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton LoginButton;

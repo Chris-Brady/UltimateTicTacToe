@@ -26,6 +26,7 @@ public class LeaderBoardEntry extends javax.swing.JPanel
         lossesLabel = new javax.swing.JLabel();
         drawsLabel = new javax.swing.JLabel();
 
+        setMaximumSize(new java.awt.Dimension(32767, 16));
         setLayout(new java.awt.GridLayout(1, 4));
 
         playerName.setText("Player");

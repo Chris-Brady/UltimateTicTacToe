@@ -59,7 +59,7 @@ public class GamePanel extends javax.swing.JPanel
     
     public void update()
     {
-        if(update)
+        if(update&&(menu.getPane().getSelectedComponent().equals(this)))
         {
             String state = UltimateTicTacToeClient.getProxy().getGameState(gid);
             switch(state)
@@ -110,11 +110,18 @@ public class GamePanel extends javax.swing.JPanel
                 for(int i=0;i<arr.length;i++)
                 {
                     String[]tmp = arr[i].split(",");
+                    int x = Integer.parseInt(tmp[1]);
+                    int y = Integer.parseInt(tmp[2]);
                     if(tmp[0].equals(game.getUserID()+""))
-                        btns[Integer.parseInt(tmp[1])][Integer.parseInt(tmp[2])].setText(symbols[0]);
+                    {
+                        btns[x][y].setText(symbols[0]);
+                        btns[x][y].setEnabled(false);
+                    }
                     else
-                        btns[Integer.parseInt(tmp[1])][Integer.parseInt(tmp[2])].setText(symbols[1]);
-                    
+                    {
+                        btns[x][y].setText(symbols[1]);
+                        btns[x][y].setEnabled(false);
+                    }
                     if(i==arr.length-1)
                         if(!(Integer.parseInt(tmp[0])==game.getUserID()))
                         {
@@ -131,11 +138,11 @@ public class GamePanel extends javax.swing.JPanel
     {
         update = false;
         if(state.equals("3"))
-            game.alertUser("Draw!");
+            game.alertUser("Game: "+gid+"\nDraw!");
         else if(isHost&&state.equals("1")||!isHost&&state.equals("2"))
-            game.alertUser("You Win!");
+            game.alertUser("Game: "+gid+"\nYou Win!");
         else
-            game.alertUser("You Lose!");
+            game.alertUser("Game: "+gid+"\nYou Lose!");
         destroy();
     }
     
@@ -191,7 +198,7 @@ public class GamePanel extends javax.swing.JPanel
         if (i != -1) 
         {
             menu.getPane().remove(i);
-            menu.getPane().setSelectedIndex(menu.getPane().indexOfTab("Games"));
+            menu.getPane().setSelectedIndex(menu.getPane().indexOfTab("Leaderboard"));
         }
         t.stop();
     }
@@ -220,6 +227,9 @@ public class GamePanel extends javax.swing.JPanel
         jPanel1.setPreferredSize(new java.awt.Dimension(288, 288));
         jPanel1.setLayout(new java.awt.GridLayout(3, 3, 1, 1));
 
+        jButton1.setMaximumSize(new java.awt.Dimension(32, 32));
+        jButton1.setMinimumSize(new java.awt.Dimension(32, 32));
+        jButton1.setPreferredSize(new java.awt.Dimension(32, 32));
         jButton1.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -229,6 +239,9 @@ public class GamePanel extends javax.swing.JPanel
         });
         jPanel1.add(jButton1);
 
+        jButton2.setMaximumSize(new java.awt.Dimension(32, 32));
+        jButton2.setMinimumSize(new java.awt.Dimension(32, 32));
+        jButton2.setPreferredSize(new java.awt.Dimension(32, 32));
         jButton2.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -238,6 +251,9 @@ public class GamePanel extends javax.swing.JPanel
         });
         jPanel1.add(jButton2);
 
+        jButton3.setMaximumSize(new java.awt.Dimension(32, 32));
+        jButton3.setMinimumSize(new java.awt.Dimension(32, 32));
+        jButton3.setPreferredSize(new java.awt.Dimension(32, 32));
         jButton3.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -247,6 +263,9 @@ public class GamePanel extends javax.swing.JPanel
         });
         jPanel1.add(jButton3);
 
+        jButton4.setMaximumSize(new java.awt.Dimension(32, 32));
+        jButton4.setMinimumSize(new java.awt.Dimension(32, 32));
+        jButton4.setPreferredSize(new java.awt.Dimension(32, 32));
         jButton4.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -256,6 +275,9 @@ public class GamePanel extends javax.swing.JPanel
         });
         jPanel1.add(jButton4);
 
+        jButton5.setMaximumSize(new java.awt.Dimension(32, 32));
+        jButton5.setMinimumSize(new java.awt.Dimension(32, 32));
+        jButton5.setPreferredSize(new java.awt.Dimension(32, 32));
         jButton5.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -265,6 +287,9 @@ public class GamePanel extends javax.swing.JPanel
         });
         jPanel1.add(jButton5);
 
+        jButton6.setMaximumSize(new java.awt.Dimension(32, 32));
+        jButton6.setMinimumSize(new java.awt.Dimension(32, 32));
+        jButton6.setPreferredSize(new java.awt.Dimension(32, 32));
         jButton6.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -274,6 +299,9 @@ public class GamePanel extends javax.swing.JPanel
         });
         jPanel1.add(jButton6);
 
+        jButton7.setMaximumSize(new java.awt.Dimension(32, 32));
+        jButton7.setMinimumSize(new java.awt.Dimension(32, 32));
+        jButton7.setPreferredSize(new java.awt.Dimension(32, 32));
         jButton7.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -283,6 +311,9 @@ public class GamePanel extends javax.swing.JPanel
         });
         jPanel1.add(jButton7);
 
+        jButton8.setMaximumSize(new java.awt.Dimension(32, 32));
+        jButton8.setMinimumSize(new java.awt.Dimension(32, 32));
+        jButton8.setPreferredSize(new java.awt.Dimension(32, 32));
         jButton8.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -292,6 +323,9 @@ public class GamePanel extends javax.swing.JPanel
         });
         jPanel1.add(jButton8);
 
+        jButton9.setMaximumSize(new java.awt.Dimension(32, 32));
+        jButton9.setMinimumSize(new java.awt.Dimension(32, 32));
+        jButton9.setPreferredSize(new java.awt.Dimension(32, 32));
         jButton9.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -304,7 +338,7 @@ public class GamePanel extends javax.swing.JPanel
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Output"));
 
         jTextArea1.setEditable(false);
-        jTextArea1.setColumns(20);
+        jTextArea1.setColumns(10);
         jTextArea1.setRows(5);
         jScrollPane1.setViewportView(jTextArea1);
 
@@ -324,7 +358,7 @@ public class GamePanel extends javax.swing.JPanel
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE)
                     .addComponent(CloseButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -345,7 +379,7 @@ public class GamePanel extends javax.swing.JPanel
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
