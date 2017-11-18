@@ -365,7 +365,7 @@ public class Login extends javax.swing.JPanel
 
     private void LoginButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_LoginButtonActionPerformed
     {//GEN-HEADEREND:event_LoginButtonActionPerformed
-        register();
+        login();
     }//GEN-LAST:event_LoginButtonActionPerformed
 
     private void RegisterButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_RegisterButtonActionPerformed

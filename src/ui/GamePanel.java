@@ -2,6 +2,8 @@ package ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashMap;
 import javax.swing.JButton;
 import javax.swing.Timer;
 import ultimatetictactoe.UltimateTicTacToeClient;
@@ -19,6 +21,7 @@ public class GamePanel extends javax.swing.JPanel
     private final boolean isHost;
     private boolean turn;
     private boolean update;
+    private boolean scoreFound;
     private final int delay = 512;
     
     public GamePanel(UltimateTicTacToeClient game, int gid, String hostName, Menu menu)
@@ -30,6 +33,7 @@ public class GamePanel extends javax.swing.JPanel
         this.turn = false;
         this.update=true;
         this.boardState="";
+        this.scoreFound = false;
         
         initComponents();
         btns=new JButton[3][3];
@@ -57,6 +61,63 @@ public class GamePanel extends javax.swing.JPanel
         update();
     };
     
+    private void getScoreBetweenUsers()
+    {
+        String leaderBoard = UltimateTicTacToeClient.getProxy().leagueTable();
+        switch(leaderBoard)
+        {
+            case"ERROR-NOGAMES":
+                break;
+            case"ERROR-DB":
+                game.alertUser("Oops!\nDatabase Error!");
+                break;
+            default:
+                HashMap<String,int[]> usersToScores = new HashMap<>();
+                ArrayList<ArrayList<String>> results = menu.gamesToArray(leaderBoard);
+                String player1="",player2 = "";
+                System.out.println(leaderBoard);
+                for(ArrayList<String>as:results)
+                {
+                    if(as.get(0).equals(gid+""))
+                    {
+                        player1 = as.get(1);
+                        player2 = as.get(2);
+                    }
+                }
+                usersToScores.put(player1,new int[3]);
+                usersToScores.put(player2,new int[3]);
+                for(ArrayList<String> as:results)
+                {
+                    if(!as.get(3).equals("0"))
+                    {
+                        if(as.get(1).equals(player1)&&as.get(2).equals(player2)||as.get(1).equals(player2)&&as.get(2).equals(player1))
+                        {
+                            int victor = Integer.parseInt(as.get(3));
+                            if(victor == 3)
+                            {
+                                usersToScores.get(player1)[2]++;
+                                usersToScores.get(player2)[2]++;
+                            }
+                            else
+                            {
+                                int loser = (victor==1)?2:1;
+                                usersToScores.get(as.get(victor))[0]++;
+                                usersToScores.get(as.get(loser))[1]++;
+                            }
+                        }
+                    }
+                }
+                
+                System.out.println(player1+","+game.getUserName());
+                String you = game.getUserName();
+                String them = (you.equals(player1))?player2:player1;
+                String scoreBoard = you+": "+usersToScores.get(you)[0]+" "+usersToScores.get(you)[1]+" "+usersToScores.get(you)[2]+"\n"
+                                   +them+": "+usersToScores.get(them)[0]+" "+usersToScores.get(them)[1]+" "+usersToScores.get(them)[2]+"\n";
+                jTextArea1.append(scoreBoard);
+                
+        }
+    }
+    
     public void update()
     {
         if(update&&(menu.getPane().getSelectedComponent().equals(this)))
@@ -70,6 +131,11 @@ public class GamePanel extends javax.swing.JPanel
                     if(CloseButton.isEnabled())
                         CloseButton.setEnabled(false);
                     String newState = UltimateTicTacToeClient.getProxy().getBoard(gid);
+                    if(!scoreFound)
+                    {
+                        getScoreBetweenUsers();
+                        scoreFound = true;
+                    }
                     if(!boardState.equals(newState))
                     {
                         boardState = newState;

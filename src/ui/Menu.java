@@ -90,7 +90,7 @@ public class Menu extends javax.swing.JPanel
         }
     }
     
-    private ArrayList<ArrayList<String>> gamesToArray(String games)
+    public synchronized ArrayList<ArrayList<String>> gamesToArray(String games)
     {
         ArrayList<ArrayList<String>> result = new ArrayList<>();
         String[] temp = games.split("\n");
@@ -150,6 +150,7 @@ public class Menu extends javax.swing.JPanel
             String leaderBoard = UltimateTicTacToeClient.getProxy().leagueTable();
             if(!leaderBoard.equals(oldLeaderBoard))
             {
+                oldLeaderBoard = leaderBoard;
                 switch(leaderBoard)
                 {
                 case"ERROR-NOGAMES":
@@ -206,6 +207,7 @@ public class Menu extends javax.swing.JPanel
             String result = UltimateTicTacToeClient.getProxy().showOpenGames();
             if(!result.equals(oldGames))
             {
+                oldGames = result;
                 String mine = UltimateTicTacToeClient.getProxy().showMyOpenGames(game.getUserID());
                 switch(result)
                 {
